@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NEO Explorer Design System - Futuristic space-tech theme
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Cosmic Base Colors */
+    --background: 240 15% 4%;         /* Deep space black */
+    --foreground: 210 40% 95%;        /* Bright white text */
+
+    /* Card & Surface Colors */
+    --card: 243 25% 8%;               /* Dark cosmic indigo */
+    --card-foreground: 210 40% 95%;
+
+    --popover: 243 25% 8%;
+    --popover-foreground: 210 40% 95%;
+
+    /* Primary Brand Colors - Neon Blue */
+    --primary: 198 100% 60%;          /* Bright neon blue */
+    --primary-foreground: 240 15% 4%;
+
+    /* Secondary - Cosmic Indigo */
+    --secondary: 243 25% 12%;         /* Lighter cosmic indigo */
+    --secondary-foreground: 210 40% 95%;
+
+    /* Muted - Subtle cosmic tones */
+    --muted: 243 15% 15%;             /* Muted cosmic */
+    --muted-foreground: 220 15% 65%;
+
+    /* Accent - Violet */
+    --accent: 270 100% 70%;           /* Bright violet */
+    --accent-foreground: 240 15% 4%;
+
+    /* Destructive - Warning red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 95%;
+
+    /* Borders & Inputs */
+    --border: 243 20% 20%;            /* Subtle cosmic border */
+    --input: 243 20% 15%;             /* Dark input background */
+    --ring: 198 100% 60%;             /* Neon blue focus ring */
+
+    /* Glass Effects */
+    --glass-bg: 243 25% 8% / 0.1;     /* Glassmorphism background */
+    --glass-border: 198 100% 60% / 0.2; /* Glass border */
+
+    /* Gradients */
+    --gradient-cosmic: linear-gradient(135deg, hsl(243 25% 8%), hsl(270 15% 12%));
+    --gradient-neon: linear-gradient(135deg, hsl(198 100% 60%), hsl(270 100% 70%));
+    --gradient-glow: radial-gradient(circle, hsl(198 100% 60% / 0.3), transparent 70%);
+
+    /* Animations */
+    --transition-cosmic: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --glow-shadow: 0 0 20px hsl(198 100% 60% / 0.5);
+    --glow-shadow-violet: 0 0 20px hsl(270 100% 70% / 0.4);
+
+    --radius: 0.75rem;
+  }
+
+  /* Dark mode is the default theme for NEO Explorer */
+  .dark {
+    /* Inherits from :root - already optimized for dark mode */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter overflow-x-hidden;
+    background: 
+      radial-gradient(circle at 20% 80%, hsl(270 100% 70% / 0.15), transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(198 100% 60% / 0.15), transparent 50%),
+      hsl(var(--background));
+  }
+
+  /* Cosmic animations */
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(120deg); }
+    66% { transform: translateY(10px) rotate(240deg); }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(198 100% 60% / 0.4);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 40px hsl(198 100% 60% / 0.6);
+      transform: scale(1.02);
+    }
+  }
+  
+  @keyframes particle-float {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+    50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+    100% { transform: translateY(-40px) translateX(-5px); opacity: 0; }
+  }
+
+  /* Glass morphism utilities */
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+  
+  .glass-card {
+    @apply glass rounded-xl p-6;
+  }
+  
+  /* Glow effects */
+  .glow-blue {
+    box-shadow: var(--glow-shadow);
+  }
+  
+  .glow-violet {
+    box-shadow: var(--glow-shadow-violet);
+  }
+  
+  /* Cosmic gradient text */
+  .text-gradient {
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Smooth transitions */
+  .transition-cosmic {
+    transition: var(--transition-cosmic);
+  }
+}

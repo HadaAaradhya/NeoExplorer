@@ -1,63 +1,64 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* NEO Explorer Design System - Futuristic space-tech theme
-All colors MUST be HSL.
+/*
+  NEO Explorer Design System
+  Theme: Futuristic space-tech
+  All colors use HSL for consistency and easy theming.
 */
 
 @layer base {
   :root {
-    /* Cosmic Base Colors */
+    /* === Cosmic Base Colors === */
     --background: 240 15% 4%;         /* Deep space black */
     --foreground: 210 40% 95%;        /* Bright white text */
 
-    /* Card & Surface Colors */
+    /* === Card & Surface Colors === */
     --card: 243 25% 8%;               /* Dark cosmic indigo */
     --card-foreground: 210 40% 95%;
-
     --popover: 243 25% 8%;
     --popover-foreground: 210 40% 95%;
 
-    /* Primary Brand Colors - Neon Blue */
+    /* === Primary Brand Colors (Neon Blue) === */
     --primary: 198 100% 60%;          /* Bright neon blue */
     --primary-foreground: 240 15% 4%;
 
-    /* Secondary - Cosmic Indigo */
+    /* === Secondary (Cosmic Indigo) === */
     --secondary: 243 25% 12%;         /* Lighter cosmic indigo */
     --secondary-foreground: 210 40% 95%;
 
-    /* Muted - Subtle cosmic tones */
+    /* === Muted (Subtle cosmic tones) === */
     --muted: 243 15% 15%;             /* Muted cosmic */
     --muted-foreground: 220 15% 65%;
 
-    /* Accent - Violet */
+    /* === Accent (Violet) === */
     --accent: 270 100% 70%;           /* Bright violet */
     --accent-foreground: 240 15% 4%;
 
-    /* Destructive - Warning red */
+    /* === Destructive (Warning red) === */
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 95%;
 
-    /* Borders & Inputs */
+    /* === Borders & Inputs === */
     --border: 243 20% 20%;            /* Subtle cosmic border */
     --input: 243 20% 15%;             /* Dark input background */
     --ring: 198 100% 60%;             /* Neon blue focus ring */
 
-    /* Glass Effects */
+    /* === Glass Effects === */
     --glass-bg: 243 25% 8% / 0.1;     /* Glassmorphism background */
     --glass-border: 198 100% 60% / 0.2; /* Glass border */
 
-    /* Gradients */
+    /* === Gradients === */
     --gradient-cosmic: linear-gradient(135deg, hsl(243 25% 8%), hsl(270 15% 12%));
     --gradient-neon: linear-gradient(135deg, hsl(198 100% 60%), hsl(270 100% 70%));
     --gradient-glow: radial-gradient(circle, hsl(198 100% 60% / 0.3), transparent 70%);
 
-    /* Animations */
+    /* === Animations & Effects === */
     --transition-cosmic: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --glow-shadow: 0 0 20px hsl(198 100% 60% / 0.5);
     --glow-shadow-violet: 0 0 20px hsl(270 100% 70% / 0.4);
-
     --radius: 0.75rem;
   }
 

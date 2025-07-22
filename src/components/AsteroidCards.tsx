@@ -1,6 +1,12 @@
 import { Card } from "@/components/ui/card";
 
+/**
+ * AsteroidCards component
+ * Displays a set of sample Near-Earth Object (NEO) cards with mock data.
+ * Each card shows asteroid details and a hazard indicator.
+ */
 export const AsteroidCards = () => {
+  // Example asteroid data (replace with live data for production)
   const asteroids = [
     {
       id: "2023 DW",
@@ -34,6 +40,7 @@ export const AsteroidCards = () => {
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto">
+        {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-orbitron font-bold text-gradient mb-4">
             Live NEO Data
@@ -43,6 +50,7 @@ export const AsteroidCards = () => {
           </p>
         </div>
 
+        {/* Asteroid cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {asteroids.map((asteroid, index) => (
             <Card 
@@ -51,9 +59,10 @@ export const AsteroidCards = () => {
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               <div className="p-6">
-                {/* Header */}
+                {/* Card header: hazard indicator and name */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
+                    {/* Hazard status dot */}
                     <div 
                       className={`w-3 h-3 rounded-full ${
                         asteroid.hazardous ? 'bg-destructive' : 'bg-primary'

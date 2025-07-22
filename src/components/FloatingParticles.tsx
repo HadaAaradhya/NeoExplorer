@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+// Particle interface for type safety
 interface Particle {
   x: number;
   y: number;
@@ -10,6 +11,10 @@ interface Particle {
   hue: number;
 }
 
+/**
+ * FloatingParticles component
+ * Renders animated, floating particles on a canvas for a cosmic background effect.
+ */
 export function FloatingParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -22,15 +27,17 @@ export function FloatingParticles() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Resize canvas to fill window
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
+    // Create random particles
     const createParticles = () => {
       const particles: Particle[] = [];
+      // Particle count scales with viewport size
       const numParticles = Math.floor((window.innerWidth * window.innerHeight) / 15000);
-      
       for (let i = 0; i < numParticles; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -42,22 +49,20 @@ export function FloatingParticles() {
           hue: Math.random() * 60 + 200, // Blue to purple range
         });
       }
-      
       particlesRef.current = particles;
     };
 
+    // Draw all particles
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
       particlesRef.current.forEach((particle) => {
-        // Create gradient for particle
+        // Create radial gradient for each particle
         const gradient = ctx.createRadialGradient(
           particle.x, particle.y, 0,
           particle.x, particle.y, particle.size
         );
         gradient.addColorStop(0, `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`);
         gradient.addColorStop(1, `hsla(${particle.hue}, 70%, 60%, 0)`);
-        
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = gradient;

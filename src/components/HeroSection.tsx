@@ -2,11 +2,15 @@ import { Button } from "@/components/ui/button";
 import asteroidOrbit from "@/assets/asteroid-orbit.png";
 import { useAuth } from "../hooks/useAuth";
 
+/**
+ * HeroSection component
+ * Displays the main landing section with animated particles, orbit, and call-to-action buttons.
+ */
 export const HeroSection = () => {
   const { signInWithGoogle } = useAuth();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Floating Particles */}
+      {/* Floating Particles (decorative dots) */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
@@ -22,12 +26,12 @@ export const HeroSection = () => {
         ))}
       </div>
 
-      {/* Orbit Animation */}
+      {/* Orbit Animation (decorative asteroid orbit) */}
       <div className="absolute top-20 right-20 w-32 h-32 animate-orbit opacity-20">
         <div className="relative w-full h-full">
           <img 
             src={asteroidOrbit} 
-            alt="" 
+            alt="Asteroid orbit illustration" 
             className="w-full h-full object-contain"
           />
           <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
@@ -36,7 +40,7 @@ export const HeroSection = () => {
 
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
-          {/* Badge */}
+          {/* Badge for real-time NASA NEO tracking */}
           <div className="inline-flex items-center px-4 py-2 rounded-full glass-card mb-8 animate-fade-in">
             <div className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse-glow"></div>
             <span className="text-sm font-inter text-muted-foreground">
@@ -56,7 +60,7 @@ export const HeroSection = () => {
             <span className="text-primary">Discover the cosmos</span> and monitor celestial threats in real-time.
           </p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons (Sign in, etc.) */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
             <Button 
               variant="outline" 

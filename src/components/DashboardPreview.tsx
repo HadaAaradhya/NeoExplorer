@@ -1,13 +1,18 @@
 import { Card } from "@/components/ui/card";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
 
+/**
+ * DashboardPreview component
+ * Shows a preview of the analytics dashboard with mock chart cards and a dashboard image.
+ */
 export const DashboardPreview = () => {
   return (
     <section className="py-20 px-4 relative overflow-hidden">
-      {/* Background Glow */}
+      {/* Background Glow for visual effect */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto relative z-10">
+        {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-orbitron font-bold text-gradient mb-4">
             Advanced Analytics
@@ -17,8 +22,9 @@ export const DashboardPreview = () => {
           </p>
         </div>
 
+        {/* Chart cards grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto mb-12">
-          {/* Chart Cards */}
+          {/* Mock bar chart card */}
           <div className="space-y-6">
             <Card className="glass-card animate-fade-in">
               <div className="p-6">
@@ -43,6 +49,7 @@ export const DashboardPreview = () => {
               </div>
             </Card>
 
+            {/* Mock pie chart card */}
             <Card className="glass-card animate-fade-in">
               <div className="p-6">
                 <h3 className="text-lg font-orbitron font-semibold mb-4 text-accent">

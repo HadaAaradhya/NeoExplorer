@@ -1,29 +1,39 @@
 import { useEffect, useRef, useState } from 'react';
 
-const INNER_SIZE = 20; // px
-const OUTER_SIZE = 38; // px
+// Custom cursor sizes (in px)
+const INNER_SIZE = 20;
+const OUTER_SIZE = 38;
+
+// Cursor color classes
 const COLORS = {
   inner: 'bg-cyan-400', // neon blue
   ring: 'border-cyan-500', // glowing cyan ring
-  ringActive: 'border-indigo-500', // on hover
+  ringActive: 'border-indigo-500', // on click/active
 };
 
+// Linear interpolation helper for smooth movement
 function lerp(a: number, b: number, n: number) {
   return (1 - n) * a + n * b;
 }
 
+/**
+ * CustomCursor component
+ * Renders a glowing, animated cursor that follows the mouse.
+ * Hides on mobile/touch devices and when idle.
+ */
 export default function CustomCursor() {
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [isActive, setIsActive] = useState(false);
   const [isHover, setIsHover] = useState(false);
+  // Current and target positions for smooth animation
   const pos = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const target = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const idleTimeout = useRef<NodeJS.Timeout | null>(null);
   const animFrame = useRef<number>();
 
-  // Hide on mobile/touch
+  // Hide cursor on mobile/touch devices
   useEffect(() => {
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (isTouch) {
@@ -32,7 +42,7 @@ export default function CustomCursor() {
     }
   }, []);
 
-  // Hide default cursor globally
+  // Hide default system cursor globally
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = '* { cursor: none !important; }';
@@ -40,7 +50,7 @@ export default function CustomCursor() {
     return () => { document.head.removeChild(style); };
   }, []);
 
-  // Mouse movement and idle
+  // Mouse movement and idle detection
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
       target.current.x = e.clientX;

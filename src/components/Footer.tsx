@@ -1,18 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Github, ExternalLink } from "lucide-react";
 
+/**
+ * Footer component
+ * Displays site branding, features, and resource links with a modern, space-themed design.
+ */
 export const Footer = () => {
   return (
     <footer className="relative py-20 px-4 mt-20">
-      {/* Background Effects */}
+      {/* Background gradient and effects for footer */}
       <div className="absolute inset-0 bg-gradient-to-t from-card/50 to-transparent"></div>
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
       
       <div className="container mx-auto relative z-10">
         <div className="max-w-4xl mx-auto">
-          {/* Main Footer Content */}
+          {/* Main Footer Content Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            {/* Brand */}
+            {/* Brand section */}
             <div>
               <h3 className="text-2xl font-orbitron font-bold text-gradient mb-4">
                 NEO Explorer
@@ -20,6 +24,7 @@ export const Footer = () => {
               <p className="text-muted-foreground font-inter mb-6">
                 Advanced near-Earth asteroid tracking powered by NASA's comprehensive database and cutting-edge space technology.
               </p>
+              {/* Social/resource buttons */}
               <div className="flex gap-4">
                 <Button 
                   variant="outline" 
@@ -54,7 +59,7 @@ export const Footer = () => {
               </div>
             </div>
 
-            {/* Features */}
+            {/* Features section */}
             <div>
               <h4 className="font-orbitron font-semibold text-lg mb-4 text-primary">
                 Features

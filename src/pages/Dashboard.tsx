@@ -9,7 +9,9 @@ import ShootingStars from "../components/ShootingStars";
 import CustomCursor from "../components/CustomCursor";
 import TopNavbar from "../components/TopNavbar";
 
-const API_KEY = 'yJQsrMMtvQfSsAYZ60eqSjXU3fAXUcQkXn0mOYjj';
+
+// Use environment variable for NASA API key (see .env setup)
+const API_KEY = import.meta.env.VITE_NASA_API_KEY;
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -20,21 +22,38 @@ export default function Dashboard() {
   const [sortBy, setSortBy] = useState('approach');
   const [dateRange, setDateRange] = useState({ start: '2024-01-15', end: '2024-01-22' });
 
-  // Data state
-  const [asteroids, setAsteroids] = useState([]);
+
+  // --- Types ---
+  type NEO = {
+    id: string;
+    name: string;
+    approach: string;
+    velocity: string;
+    diameter: string;
+    hazardous: boolean;
+    nasa_jpl_url: string;
+    close_approach_data: Array<{
+      relative_velocity: { kilometers_per_second: string };
+    }>;
+    estimated_diameter: {
+      meters: {
+        estimated_diameter_min: number;
+        estimated_diameter_max: number;
+      };
+    };
+    is_potentially_hazardous_asteroid: boolean;
+    favorited?: boolean;
+  };
+
+  // --- State ---
+  const [asteroids, setAsteroids] = useState<NEO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Asteroid Detail Modal
-  const [modalAsteroid, setModalAsteroid] = useState(null);
-
-  // Chart data
-  const [barData, setBarData] = useState([]);
-  const [pieData, setPieData] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [modalAsteroid, setModalAsteroid] = useState<NEO | null>(null);
+  const [barData, setBarData] = useState<{ date: string; count: number }[]>([]);
+  const [pieData, setPieData] = useState<{ name: string; value: number }[]>([]);
   const pieColors = ['#f87171', '#38bdf8'];
-
-  // Live NASA Feed Banner
-  const [liveFeed, setLiveFeed] = useState({ message: '', type: 'info' });
+  const [liveFeed, setLiveFeed] = useState<{ message: string; type: string }>({ message: '', type: 'info' });
 
   // Fetch NEO data from NASA API
   useEffect(() => {
@@ -53,10 +72,11 @@ export default function Dashboard() {
           throw new Error(data.error?.message || 'Failed to fetch NEO data');
         }
         // Flatten all asteroids into a single array
-        let allAsteroids: any[] = [];
-        const neoObj = data.near_earth_objects as Record<string, any[]>;
+        const allAsteroids: NEO[] = [];
+        // The NASA API returns near_earth_objects as Record<string, NEO[]>
+        const neoObj = data.near_earth_objects as Record<string, NEO[]>;
         Object.entries(neoObj).forEach(([date, arr]) => {
-          arr.forEach(a => {
+          arr.forEach((a) => {
             allAsteroids.push({
               ...a,
               approach: date,

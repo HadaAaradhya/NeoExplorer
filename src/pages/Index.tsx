@@ -22,7 +22,6 @@ const Index = () => {
       <CustomCursor />
       <HeroSection />
       <AsteroidCards />
-      <DashboardPreview />
       <Footer />
     </div>
   );

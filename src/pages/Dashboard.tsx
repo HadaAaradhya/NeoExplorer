@@ -14,6 +14,17 @@ import TopNavbar from "../components/TopNavbar";
 const API_KEY = import.meta.env.VITE_NASA_API_KEY;
 
 export default function Dashboard() {
+  // --- Date Format Helpers ---
+  function toISODate(ddmmyyyy: string) {
+    // Convert dd/mm/yyyy to yyyy-mm-dd
+    const [dd, mm, yyyy] = ddmmyyyy.split('/');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function toDDMMYYYY(iso: string) {
+    // Convert yyyy-mm-dd to dd/mm/yyyy
+    const [yyyy, mm, dd] = iso.split('-');
+    return `${dd}/${mm}/${yyyy}`;
+  }
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -21,9 +32,18 @@ export default function Dashboard() {
   const [filterHazard, setFilterHazard] = useState('all');
   const [sortBy, setSortBy] = useState('approach');
   const [dateRange, setDateRange] = useState({ start: '2024-01-15', end: '2024-01-22' });
+  // Store pendingDateRange in dd/mm/yyyy format for user input
+  const [pendingDateRange, setPendingDateRange] = useState({ start: toDDMMYYYY('2024-01-15'), end: toDDMMYYYY('2024-01-22') });
+  const [showWarning, setShowWarning] = useState(false);
+  const [searchTriggered, setSearchTriggered] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
 
-  // --- Types ---
+
+// --- Types ---
   type NEO = {
     id: string;
     name: string;
@@ -57,6 +77,18 @@ export default function Dashboard() {
 
   // Fetch NEO data from NASA API
   useEffect(() => {
+    // Show warning if date range > 7 days
+    // Convert dd/mm/yyyy to Date
+    const [sd, sm, sy] = pendingDateRange.start.split('/');
+    const [ed, em, ey] = pendingDateRange.end.split('/');
+    const start = new Date(`${sy}-${sm}-${sd}`);
+    const end = new Date(`${ey}-${em}-${ed}`);
+    const diffDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+    setShowWarning(diffDays > 7);
+  }, [pendingDateRange]);
+
+  useEffect(() => {
+    if (!searchTriggered) return;
     async function fetchNEO() {
       setLoading(true);
       setError(null);
@@ -119,10 +151,11 @@ export default function Dashboard() {
         setError(err.message || 'Error fetching data');
       } finally {
         setLoading(false);
+        setSearchTriggered(false);
       }
     }
     fetchNEO();
-  }, [dateRange.start, dateRange.end]);
+  }, [searchTriggered, dateRange]);
 
   // Apply filters
   let filteredAsteroids = asteroids.filter(a => {
@@ -132,6 +165,19 @@ export default function Dashboard() {
     if (dateRange.end && a.approach > dateRange.end) return false;
     return true;
   });
+  
+  // --- Derived Stats for Cards ---
+  // Only calculate if there are asteroids
+  let fastestAsteroid = null, closestAsteroid = null, avgSize = null;
+  if (filteredAsteroids.length > 0) {
+    fastestAsteroid = filteredAsteroids.reduce((max, a) => parseFloat(a.velocity) > parseFloat(max.velocity) ? a : max, filteredAsteroids[0]);
+    closestAsteroid = filteredAsteroids.reduce((min, a) => new Date(a.approach) < new Date(min.approach) ? a : min, filteredAsteroids[0]);
+    const sizes = filteredAsteroids.map(a => {
+      const [min, max] = a.diameter.split(' - ').map(Number);
+      return (min + max) / 2;
+    });
+    avgSize = (sizes.reduce((sum, s) => sum + s, 0) / sizes.length).toFixed(2);
+  }
   // Apply sorting
   filteredAsteroids = [...filteredAsteroids].sort((a, b) => {
     if (sortBy === 'approach') return a.approach.localeCompare(b.approach);
@@ -144,6 +190,10 @@ export default function Dashboard() {
     }
     return 0;
   });
+
+  // Pagination logic (after filteredAsteroids is defined)
+  const totalPages = Math.ceil(filteredAsteroids.length / rowsPerPage);
+  const paginatedAsteroids = filteredAsteroids.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <section id="dashboard" className="py-24 bg-slate-950 min-h-screen relative overflow-hidden">
@@ -165,8 +215,8 @@ export default function Dashboard() {
             Monitor asteroid activity and analyze trends from your unified command center
           </p>
         </div>
-        {/* Stats Summary Card */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-10">
+        {/* Stats Summary Cards */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-4">
           <div className="bg-slate-900/80 rounded-xl px-8 py-6 flex flex-col items-center border border-slate-700 min-w-[180px]">
             <div className="text-3xl font-bold text-sky-400">{asteroids.length}</div>
             <div className="text-sm text-slate-400 mt-1">Asteroids Found</div>
@@ -179,6 +229,32 @@ export default function Dashboard() {
             <div className="text-3xl font-bold text-green-400">{asteroids.filter(a => !a.hazardous).length}</div>
             <div className="text-sm text-slate-400 mt-1">Safe</div>
           </div>
+        </div>
+        {/* Fastest, Closest, and Average Size Asteroid Cards */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-10">
+          {/* Fastest Asteroid Card */}
+          {fastestAsteroid && (
+            <div className="bg-slate-900/80 rounded-xl px-8 py-6 flex flex-col items-center border border-yellow-700 min-w-[180px]">
+              <div className="text-3xl font-bold text-yellow-400">{parseFloat(fastestAsteroid.velocity).toFixed(2)} km/s</div>
+              <div className="text-sm text-slate-400 mt-1">Fastest Asteroid</div>
+              <div className="text-xs text-slate-500 mt-1">{fastestAsteroid.name}</div>
+            </div>
+          )}
+          {/* Closest Asteroid Card */}
+          {closestAsteroid && (
+            <div className="bg-slate-900/80 rounded-xl px-8 py-6 flex flex-col items-center border border-blue-700 min-w-[180px]">
+              <div className="text-3xl font-bold text-blue-400">{toDDMMYYYY(closestAsteroid.approach)}</div>
+              <div className="text-sm text-slate-400 mt-1">Closest Approach</div>
+              <div className="text-xs text-slate-500 mt-1">{closestAsteroid.name}</div>
+            </div>
+          )}
+          {/* Average Size Card */}
+          {avgSize && (
+            <div className="bg-slate-900/80 rounded-xl px-8 py-6 flex flex-col items-center border border-green-700 min-w-[180px]">
+              <div className="text-3xl font-bold text-green-400">{avgSize} m</div>
+              <div className="text-sm text-slate-400 mt-1">Average Size</div>
+            </div>
+          )}
         </div>
         <Card className="bg-gradient-to-br from-sky-900/20 to-indigo-900/20 backdrop-blur-sm border border-slate-700/20">
           <div className="p-8">
@@ -282,9 +358,19 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-2 items-center">
                 <label className="text-slate-400">Date Range:</label>
-                <input type="date" value={dateRange.start} onChange={e => setDateRange(r => ({ ...r, start: e.target.value }))} className="rounded bg-slate-900 text-white px-2 py-1 border border-slate-700" />
+                <input type="date" value={pendingDateRange.start} onChange={e => setPendingDateRange(r => ({ ...r, start: e.target.value }))} className="rounded bg-slate-900 text-white px-2 py-1 border border-slate-700" />
                 <span className="text-slate-400">to</span>
-                <input type="date" value={dateRange.end} onChange={e => setDateRange(r => ({ ...r, end: e.target.value }))} className="rounded bg-slate-900 text-white px-2 py-1 border border-slate-700" />
+                <input type="date" value={pendingDateRange.end} onChange={e => setPendingDateRange(r => ({ ...r, end: e.target.value }))} className="rounded bg-slate-900 text-white px-2 py-1 border border-slate-700" />
+                <Button
+                  variant="outline"
+                  className="ml-2"
+                  onClick={() => {
+                    setDateRange({ ...pendingDateRange });
+                    setSearchTriggered(true);
+                  }}
+                >
+                  Submit
+                </Button>
               </div>
             </div>
             {/* Asteroid List */}
@@ -303,49 +389,86 @@ export default function Dashboard() {
                     <div className="flex items-center justify-center py-8 text-red-400">{error}</div>
                   ) : filteredAsteroids.length === 0 ? (
                     <div className="flex items-center justify-center py-8 text-slate-400">No asteroids found for this range.</div>
-                  ) : filteredAsteroids.map((asteroid, index) => (
-                    <div
-                      key={asteroid.id || index}
-                      className={`bg-slate-900/50 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-900/70 transition-colors border-l-4 ${
-                        asteroid.hazardous ? "border-red-500" : "border-green-500"
-                      } cursor-pointer`}
-                      onClick={() => setModalAsteroid(asteroid)}
-                    >
-                      <div className="flex-1">
-                        <h5 className="font-semibold text-white">{asteroid.name}</h5>
-                        <div className="flex flex-wrap gap-4 mt-1 text-sm text-slate-400">
-                          <span>Est. Diameter: {asteroid.diameter}</span>
-                          <span>Velocity: {parseFloat(asteroid.velocity).toFixed(2)} km/s</span>
-                          <span>Approach: {asteroid.approach}</span>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-slate-900/50 rounded-lg">
+                        <thead>
+                          <tr className="text-white text-left">
+                            <th className="px-4 py-2">Name</th>
+                            <th className="px-4 py-2">Diameter (m)</th>
+                            <th className="px-4 py-2">Velocity (km/s)</th>
+                            <th className="px-4 py-2">Approach Date</th>
+                            <th className="px-4 py-2">Hazardous</th>
+                            <th className="px-4 py-2">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedAsteroids.map((asteroid, index) => (
+                            <tr key={asteroid.id || index} className="border-b border-slate-700 hover:bg-slate-900/70 transition-colors cursor-pointer" onClick={() => setModalAsteroid(asteroid)}>
+                              <td className="px-4 py-2 font-semibold text-white">{asteroid.name}</td>
+                              <td className="px-4 py-2 text-slate-400">{asteroid.diameter}</td>
+                              <td className="px-4 py-2 text-slate-400">{parseFloat(asteroid.velocity).toFixed(2)}</td>
+                              <td className="px-4 py-2 text-slate-400">{toDDMMYYYY(asteroid.approach)}</td>
+                              <td className="px-4 py-2">
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  asteroid.hazardous
+                                    ? "bg-red-500/20 text-red-400"
+                                    : "bg-green-500/20 text-green-400"
+                                }`}>
+                                  {asteroid.hazardous ? "Hazardous" : "Safe"}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2 flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`${asteroid.favorited ? "text-yellow-500" : "text-gray-500"} hover:text-yellow-400`}
+                                  disabled={!user}
+                                >
+                                  {asteroid.favorited ? "⭐" : "☆"}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-500 hover:text-blue-400"
+                                  disabled={!user}
+                                >
+                                  👁️
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {/* Pagination Controls */}
+                      {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                          >
+                            Previous
+                          </Button>
+                          <span className="text-white font-inter text-sm">Page {currentPage} of {totalPages}</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                          >
+                            Next
+                          </Button>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 mt-3 sm:mt-0">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          asteroid.hazardous
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-green-500/20 text-green-400"
-                        }`}>
-                          {asteroid.hazardous ? "Hazardous" : "Safe"}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className={`${asteroid.favorited ? "text-yellow-500" : "text-gray-500"} hover:text-yellow-400`}
-                          disabled={!user}
-                        >
-                          {asteroid.favorited ? "⭐" : "☆"}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-blue-500 hover:text-blue-400"
-                          disabled={!user}
-                        >
-                          👁️
-                        </Button>
-                      </div>
+                      )}
                     </div>
-                  ))}
+                  )}
+            {showWarning && (
+              <div className="mb-4 p-3 bg-yellow-900/80 text-yellow-300 rounded-lg text-center font-semibold">
+                Warning: NASA API only supports a maximum 7-day search window. Please select a range of 7 days or less for best results.
+              </div>
+            )}
                 </div>
               </div>
             </Card>

@@ -7,6 +7,11 @@ import { Card } from "@/components/ui/card";
  */
 export const AsteroidCards = () => {
   // Example asteroid data (replace with live data for production)
+  // Helper to convert yyyy-mm-dd to dd/mm/yyyy
+  function toDDMMYYYY(iso: string) {
+    const [yyyy, mm, dd] = iso.split('-');
+    return `${dd}/${mm}/${yyyy}`;
+  }
   const asteroids = [
     {
       id: "2023 DW",
@@ -102,7 +107,7 @@ export const AsteroidCards = () => {
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Last Seen</div>
                     <div className="font-orbitron font-semibold">
-                      {asteroid.lastObserved}
+                      {toDDMMYYYY(asteroid.lastObserved)}
                     </div>
                   </div>
                 </div>
